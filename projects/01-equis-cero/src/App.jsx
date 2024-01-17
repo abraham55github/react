@@ -10,8 +10,15 @@ import { WinnerModal } from './components/WinnerModal'
 
 //programa principal
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null))
-  const [turn, setTurn] = useState(Turns.X)
+  const [board, setBoard] = useState(() => {
+    const boardFromStorage = window.localStorage.getItem('board')
+    if (boardFromStorage) return JSON.parse(boardFromStorage)
+    return Array(9).fill(null)
+  })
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    return turnFromStorage ?? Turns.X
+  })
 
   //null es que no hay ganador, false es que hay un empate
   const [winner, setWinner] = useState(null)
@@ -21,6 +28,8 @@ function App() {
     setBoard(Array(9).fill(null))
     setTurn(Turns.X)
     setWinner(null)
+
+    window.localStorage.removeItem('board')
   }
 
   const checkEndGame = (newBoard) =>{
@@ -39,6 +48,9 @@ function App() {
     //cambiar turno
     const newTurn = turn == Turns.X ? Turns.O : Turns.X
     setTurn(newTurn)
+    //guardar aqui partida
+    window.localStorage.setItem('board', JSON.stringify(newBoard))
+    window.localStorage.setItem('turn', newTurn)
     // revisar si hay ganador
     const newWinner = checkWinnerFrom(newBoard)
     if (newWinner){
